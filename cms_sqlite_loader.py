@@ -125,70 +125,27 @@ def load_carrier(the_file,the_ddl=None,the_database =None ):
   realF()
 
 
-def load_outpatient(the_file,the_ddl=None,the_database =None ):
-  print("running load_outpatient() with ", the_file)
+def load_drug_events(the_file,the_ddl=None,the_database =None ):
+  print("running load_drug_events() with ", the_file)
   if the_database is None:
     file_first,_ = os.path.basename(the_file).split(".")  
     the_database = file_first + ".db"
-  sql_for_main_claim = """INSERT OR IGNORE INTO outpatient_claim (
-                            DESYNPUF_ID  ,
-                            CLM_ID  ,
-                            SEGMENT  ,
-                            CLM_FROM_DT  ,
-                            CLM_THRU_DT  ,
-                            PRVDR_NUM  ,
-                            CLM_PMT_AMT  ,
-                            NCH_PRMRY_PYR_CLM_PD_AMT  ,
-                            AT_PHYSN_NPI  ,
-                            OP_PHYSN_NPI  ,
-                            OT_PHYSN_NPI  ,
-                            NCH_BENE_BLOOD_DDCTBL_LBLTY_AM  ,
-                            NCH_BENE_PTB_DDCTBL_AMT  ,
-                            NCH_BENE_PTB_COINSRNC_AMT  ,
-                            ADMTNG_ICD9_DGNS_CD  ,
-                            BatchId ) 
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  sql_for_main_drug_events = """INSERT OR IGNORE INTO drug_events (
+                                DESYNPUF_ID ,
+                                PDE_ID ,
+                                SRVC_DT ,
+                                PROD_SRVC_ID ,
+                                QTY_DSPNSD_NUM ,
+                                DAYS_SUPLY_NUM ,
+                                PTNT_PAY_AMT ,
+                                TOT_RX_CST_AMT ,
+                                BatchId )
+           VALUES (?,?,?,?,?,?,?,?,?)
   """
-  def claim_row(row,batchid):
-    colsToKeep = [row[i] for i in range(0,12)] + [row[i] for i in range(28,31)]
+  def drug_events_row(row,batchid):
+    colsToKeep = [row[i] for i in range(0,8)] 
     yield colsToKeep + [batchid]
-  sql_for_hcpc_procedure = "INSERT OR IGNORE INTO hcpc_outpatient_procedure (\
-                      HCPCS_CD , \
-                      numeric_postfix  , \
-                      outpatient_claim_id \
-           ) VALUES (?,?,?)"
-  def explode_row_for_hcpc_procedures(row,batchid):
-    colsToKeep = [row[1]]
-    for i in range(0,45):
-      actual_row = i + 31
-      if row[actual_row]:
-        yield [row[actual_row]] + [i+1] + colsToKeep 
-  sql_for_icd9_procedure = "INSERT OR IGNORE INTO icd9_outpatient_procedure (\
-                      ICD9_PRCDR_CD , \
-                      numeric_postfix  , \
-                      outpatient_claim_id \
-           ) VALUES (?,?,?)"
-  def explode_row_for_icd9_procedures(row,batchid):
-    colsToKeep = [row[1]]
-    for i in range(0,6):
-      actual_row = i + 22
-      if row[actual_row]:
-        yield [row[actual_row]] + [i+1] + colsToKeep 
-  sql_for_diag = "INSERT OR IGNORE INTO outpatient_diagnosis (\
-                      ICD9_DGNS_CD , \
-                      numeric_postfix  , \
-                      outpatient_claim_id \
-           ) VALUES (?,?,?)"
-  def explode_row_for_diags(row,batchid):
-    colsToKeep = [row[1]]
-    for i in range(0,10):
-      actual_row = i + 12
-      if row[actual_row]:
-        yield [row[actual_row]] + [i+1] + colsToKeep 
-  sql_function_pairs = [ (sql_for_main_claim, claim_row) ,
-                          (sql_for_hcpc_procedure,explode_row_for_hcpc_procedures),
-                          (sql_for_icd9_procedure,explode_row_for_icd9_procedures),
-                          (sql_for_diag,explode_row_for_diags) ]
+  sql_function_pairs = [ (sql_for_main_drug_events, drug_events_row) ]
   realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
   realF()
 
@@ -264,11 +221,134 @@ def load_inpatient(the_file,the_ddl=None,the_database =None ):
   realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
   realF()
 
+
+
+def load_outpatient(the_file,the_ddl=None,the_database =None ):
+  print("running load_outpatient() with ", the_file)
+  if the_database is None:
+    file_first,_ = os.path.basename(the_file).split(".")  
+    the_database = file_first + ".db"
+  sql_for_main_claim = """INSERT OR IGNORE INTO outpatient_claim (
+                            DESYNPUF_ID  ,
+                            CLM_ID  ,
+                            SEGMENT  ,
+                            CLM_FROM_DT  ,
+                            CLM_THRU_DT  ,
+                            PRVDR_NUM  ,
+                            CLM_PMT_AMT  ,
+                            NCH_PRMRY_PYR_CLM_PD_AMT  ,
+                            AT_PHYSN_NPI  ,
+                            OP_PHYSN_NPI  ,
+                            OT_PHYSN_NPI  ,
+                            NCH_BENE_BLOOD_DDCTBL_LBLTY_AM  ,
+                            NCH_BENE_PTB_DDCTBL_AMT  ,
+                            NCH_BENE_PTB_COINSRNC_AMT  ,
+                            ADMTNG_ICD9_DGNS_CD  ,
+                            BatchId ) 
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  """
+  def claim_row(row,batchid):
+    colsToKeep = [row[i] for i in range(0,12)] + [row[i] for i in range(28,31)]
+    yield colsToKeep + [batchid]
+  sql_for_hcpc_procedure = "INSERT OR IGNORE INTO hcpc_outpatient_procedure (\
+                      HCPCS_CD , \
+                      numeric_postfix  , \
+                      outpatient_claim_id \
+           ) VALUES (?,?,?)"
+  def explode_row_for_hcpc_procedures(row,batchid):
+    colsToKeep = [row[1]]
+    for i in range(0,45):
+      actual_row = i + 31
+      if row[actual_row]:
+        yield [row[actual_row]] + [i+1] + colsToKeep 
+  sql_for_icd9_procedure = "INSERT OR IGNORE INTO icd9_outpatient_procedure (\
+                      ICD9_PRCDR_CD , \
+                      numeric_postfix  , \
+                      outpatient_claim_id \
+           ) VALUES (?,?,?)"
+  def explode_row_for_icd9_procedures(row,batchid):
+    colsToKeep = [row[1]]
+    for i in range(0,6):
+      actual_row = i + 22
+      if row[actual_row]:
+        yield [row[actual_row]] + [i+1] + colsToKeep 
+  sql_for_diag = "INSERT OR IGNORE INTO outpatient_diagnosis (\
+                      ICD9_DGNS_CD , \
+                      numeric_postfix  , \
+                      outpatient_claim_id \
+           ) VALUES (?,?,?)"
+  def explode_row_for_diags(row,batchid):
+    colsToKeep = [row[1]]
+    for i in range(0,10):
+      actual_row = i + 12
+      if row[actual_row]:
+        yield [row[actual_row]] + [i+1] + colsToKeep 
+  sql_function_pairs = [ (sql_for_main_claim, claim_row) ,
+                          (sql_for_hcpc_procedure,explode_row_for_hcpc_procedures),
+                          (sql_for_icd9_procedure,explode_row_for_icd9_procedures),
+                          (sql_for_diag,explode_row_for_diags) ]
+  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF()
+
+
+
+def load_beneficiary(the_file,the_ddl=None,the_database =None ):
+  print("running load_beneficiary() with ", the_file)
+  if the_database is None:
+    file_first,_ = os.path.basename(the_file).split(".")  
+    the_database = file_first + ".db"
+  sql_for_main_beneficiary = """INSERT OR IGNORE INTO beneficiary (
+        DESYNPUF_ID ,
+        BENE_BIRTH_DT ,
+        BENE_DEATH_DT ,
+        BENE_SEX_IDENT_CD ,
+        BENE_RACE_CD ,
+        BENE_ESRD_IND ,
+        SP_STATE_CODE ,
+        BENE_COUNTY_CD ,
+        BENE_HI_CVRAGE_TOT_MONS ,
+        BENE_SMI_CVRAGE_TOT_MONS ,
+        BENE_HMO_CVRAGE_TOT_MONS ,
+        PLAN_CVRG_MOS_NUM ,
+        SP_ALZHDMTA ,
+        SP_CHF ,
+        SP_CHRNKIDN ,
+        SP_CNCR ,
+        SP_COPD ,
+        SP_DEPRESSN ,
+        SP_DIABETES ,
+        SP_ISCHMCHT ,
+        SP_OSTEOPRS ,
+        SP_RA_OA ,
+        SP_STRKETIA ,
+        MEDREIMB_IP ,
+        BENRES_IP ,
+        PPPYMT_IP ,
+        MEDREIMB_OP ,
+        BENRES_OP ,
+        PPPYMT_OP ,
+        MEDREIMB_CAR ,
+        BENRES_CAR ,
+        PPPYMT_CAR,
+         BatchId )
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  """
+  def beneficiary_row(row,batchid):
+    colsToKeep = [row[i] for i in range(0,32)] 
+    yield colsToKeep + [batchid]
+  sql_function_pairs = [ (sql_for_main_beneficiary, beneficiary_row) ]
+  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF()
+
 def load_main_files():
   # load_carrier("test-data/DE1_0_2008_to_2010_Carrier_Claims_Sample_2A.csv","ddl/create-carrier-etl.ddl","carrier.db")
   # load_carrier("test-data/DE1_0_2008_to_2010_Carrier_Claims_Sample_2B.csv","ddl/create-carrier-etl.ddl","carrier.db")
   # load_inpatient("test-data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_2.csv","ddl/create-inpatient-etl.ddl","inpatient.db")
-  load_outpatient("test-data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_2.csv","ddl/create-outpatient-etl.ddl","outpatient.db")
+  #load_outpatient("test-data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_2.csv","ddl/create-outpatient-etl.ddl","outpatient.db")
+  # load_beneficiary("test-data/DE1_0_2008_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  # load_beneficiary("test-data/DE1_0_2009_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  # load_beneficiary("test-data/DE1_0_2010_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  load_drug_events("test-data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_2.csv","ddl/create-prescription-etl.ddl","prescription.db")
 
 
 
