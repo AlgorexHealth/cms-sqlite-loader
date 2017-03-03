@@ -340,15 +340,23 @@ def load_beneficiary(the_file,the_ddl=None,the_database =None ):
   realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
   realF()
 
-def load_main_files():
-  # load_carrier("test-data/DE1_0_2008_to_2010_Carrier_Claims_Sample_2A.csv","ddl/create-carrier-etl.ddl","carrier.db")
-  # load_carrier("test-data/DE1_0_2008_to_2010_Carrier_Claims_Sample_2B.csv","ddl/create-carrier-etl.ddl","carrier.db")
-  # load_inpatient("test-data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_2.csv","ddl/create-inpatient-etl.ddl","inpatient.db")
-  #load_outpatient("test-data/DE1_0_2008_to_2010_Outpatient_Claims_Sample_2.csv","ddl/create-outpatient-etl.ddl","outpatient.db")
-  # load_beneficiary("test-data/DE1_0_2008_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  # load_beneficiary("test-data/DE1_0_2009_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  # load_beneficiary("test-data/DE1_0_2010_Beneficiary_Summary_File_Sample_2.csv","ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  load_drug_events("test-data/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_2.csv","ddl/create-prescription-etl.ddl","prescription.db")
+def load_main_files(sample):
+  filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}A.csv".format(sample)
+  load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
+  filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}B.csv".format(sample)
+  load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
+  filen =   "sample_{0}/DE1_0_2008_to_2010_Inpatient_Claims_Sample_{0}.csv".format(sample)
+  load_inpatient(filen,"ddl/create-inpatient-etl.ddl","inpatient.db")
+  filen =   "sample_{0}/DE1_0_2008_to_2010_Outpatient_Claims_Sample_{0}.csv".format(sample)
+  load_outpatient(filen,"ddl/create-outpatient-etl.ddl","outpatient.db")
+  filen =   "sample_{0}/DE1_0_2008_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  filen =   "sample_{0}/DE1_0_2009_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  filen =   "sample_{0}/DE1_0_2010_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  filen =   "sample_{0}/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_{0}.csv".format(sample)
+  load_drug_events(filen,"ddl/create-prescription-etl.ddl","prescription.db")
 
 
-
+if __name__ == "__main__": load_main_files(sys.argv[1])
