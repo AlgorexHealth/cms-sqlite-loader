@@ -28,3 +28,5 @@ curl  -O -L ${HTTP_FRONT}DE1_0_2009_Beneficiary_Summary_File_Sample_$1.zip
 curl  -O -L ${HTTP_FRONT}DE1_0_2010_Beneficiary_Summary_File_Sample_$1.zip  
   unzip DE1_0_2010_Beneficiary_Summary_File_Sample_$1.zip
   rm DE1_0_2010_Beneficiary_Summary_File_Sample_$1.zip
+
+cd ..
