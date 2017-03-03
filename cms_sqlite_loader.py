@@ -43,15 +43,11 @@ def load_generic(f,skipLines,sqlFuncs,the_database,the_ddl):
       batchid = cur.lastrowid
       for _ in range(skipLines):
         next(csvReader)
-      rownumber = 1
       for row in csvReader:
-        if (rownumber % 1000) == 0:
-          sys.stdout.write('.')
         for sql,proxyFunc in sqlFuncs:
           for newrow in proxyFunc(row,  batchid ):
             cur.execute(sql, newrow)
-        rownumber += 1
-        conn.commit()
+      conn.commit()
       conn.close()
   return runner
 
@@ -341,22 +337,23 @@ def load_beneficiary(the_file,the_ddl=None,the_database =None ):
   realF()
 
 def load_main_files(sample):
-  filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}A.csv".format(sample)
-  load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
-  filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}B.csv".format(sample)
-  load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
-  filen =   "sample_{0}/DE1_0_2008_to_2010_Inpatient_Claims_Sample_{0}.csv".format(sample)
-  load_inpatient(filen,"ddl/create-inpatient-etl.ddl","inpatient.db")
-  filen =   "sample_{0}/DE1_0_2008_to_2010_Outpatient_Claims_Sample_{0}.csv".format(sample)
-  load_outpatient(filen,"ddl/create-outpatient-etl.ddl","outpatient.db")
-  filen =   "sample_{0}/DE1_0_2008_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  filen =   "sample_{0}/DE1_0_2009_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  filen =   "sample_{0}/DE1_0_2010_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
-  filen =   "sample_{0}/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_{0}.csv".format(sample)
-  load_drug_events(filen,"ddl/create-prescription-etl.ddl","prescription.db")
+  #filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}A.csv".format(sample)
+  #load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
+  #filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}B.csv".format(sample)
+  #load_carrier(filen,"ddl/create-carrier-etl.ddl","carrier.db")
+  #filen =   "sample_{0}/DE1_0_2008_to_2010_Inpatient_Claims_Sample_{0}.csv".format(sample)
+  #load_inpatient(filen,"ddl/create-inpatient-etl.ddl","inpatient.db")
+  #filen =   "sample_{0}/DE1_0_2008_to_2010_Outpatient_Claims_Sample_{0}.csv".format(sample)
+  #load_outpatient(filen,"ddl/create-outpatient-etl.ddl","outpatient.db")
+  #filen =   "sample_{0}/DE1_0_2008_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  #load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  #filen =   "sample_{0}/DE1_0_2009_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  #load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  #filen =   "sample_{0}/DE1_0_2010_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
+  #load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  #filen =   "sample_{0}/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_{0}.csv".format(sample)
+  #load_drug_events(filen,"ddl/create-prescription-etl.ddl","prescription.db")
 
 
-if __name__ == "__main__": load_main_files(sys.argv[1])
+if __name__ == "__main__": 
+  load_main_files(sys.argv[1])
