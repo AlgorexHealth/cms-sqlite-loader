@@ -1,4 +1,6 @@
+#!/bin/bash
 # nothing here for now
-source download.sh $1
+./download.sh $1
+source ~/demo/bin/activate
 python cms_sqlite_loader.py $1
-source archive_and_upload.sh $1
+./archive_and_upload.sh $1
