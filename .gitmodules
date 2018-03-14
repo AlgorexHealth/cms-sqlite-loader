@@ -1,0 +1,3 @@
+[submodule "deps/algorex-data-dictionary"]
+	path = deps/algorex-data-dictionary
+	url = git@github.com:AlgorexHealth/algorex-data-dictionary.git
