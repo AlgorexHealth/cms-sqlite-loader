@@ -83,27 +83,7 @@ def load_carrier(the_file,the_ddl=None,the_database =None ):
 
 def load_drug_events(the_file,the_ddl=None,the_database =None ):
   print("running load_drug_events() with ", the_file)
-  if the_database is None:
-    file_first,_ = os.path.basename(the_file).split(".")  
-    the_database = file_first + ".db"
-  sql_for_main_drug_events = """INSERT OR IGNORE INTO drug_events (
-                                DESYNPUF_ID ,
-                                PDE_ID ,
-                                SRVC_DT ,
-                                PROD_SRVC_ID ,
-                                QTY_DSPNSD_NUM ,
-                                DAYS_SUPLY_NUM ,
-                                PTNT_PAY_AMT ,
-                                TOT_RX_CST_AMT ,
-                                BatchId )
-           VALUES (?,?,?,?,?,?,?,?,?)
-  """
-  def drug_events_row(row,batchid):
-    colsToKeep = [row[i] for i in range(0,8)] 
-    yield colsToKeep + [batchid]
-  sql_function_pairs = [ (sql_for_main_drug_events, drug_events_row) ]
-  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
-  realF()
+  dbf.quick_load(the_file,the_database, "drug_events")
 
 def load_inpatient(the_file,the_ddl=None,the_database =None ):
   print("running load_inpatient() with ", the_file)
@@ -246,55 +226,9 @@ def load_outpatient(the_file,the_ddl=None,the_database =None ):
   realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
   realF()
 
-
-
 def load_beneficiary(the_file,the_ddl=None,the_database =None ):
   print("running load_beneficiary() with ", the_file)
-  if the_database is None:
-    file_first,_ = os.path.basename(the_file).split(".")  
-    the_database = file_first + ".db"
-  sql_for_main_beneficiary = """INSERT OR IGNORE INTO beneficiary (
-        DESYNPUF_ID ,
-        BENE_BIRTH_DT ,
-        BENE_DEATH_DT ,
-        BENE_SEX_IDENT_CD ,
-        BENE_RACE_CD ,
-        BENE_ESRD_IND ,
-        SP_STATE_CODE ,
-        BENE_COUNTY_CD ,
-        BENE_HI_CVRAGE_TOT_MONS ,
-        BENE_SMI_CVRAGE_TOT_MONS ,
-        BENE_HMO_CVRAGE_TOT_MONS ,
-        PLAN_CVRG_MOS_NUM ,
-        SP_ALZHDMTA ,
-        SP_CHF ,
-        SP_CHRNKIDN ,
-        SP_CNCR ,
-        SP_COPD ,
-        SP_DEPRESSN ,
-        SP_DIABETES ,
-        SP_ISCHMCHT ,
-        SP_OSTEOPRS ,
-        SP_RA_OA ,
-        SP_STRKETIA ,
-        MEDREIMB_IP ,
-        BENRES_IP ,
-        PPPYMT_IP ,
-        MEDREIMB_OP ,
-        BENRES_OP ,
-        PPPYMT_OP ,
-        MEDREIMB_CAR ,
-        BENRES_CAR ,
-        PPPYMT_CAR,
-         BatchId )
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-  """
-  def beneficiary_row(row,batchid):
-    colsToKeep = [row[i] for i in range(0,32)] 
-    yield colsToKeep + [batchid]
-  sql_function_pairs = [ (sql_for_main_beneficiary, beneficiary_row) ]
-  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
-  realF()
+  dbf.quick_load(the_file,the_database, "beneficiary")
 
 def load_main_files(sample):
   filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}A.csv".format(sample)
