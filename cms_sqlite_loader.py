@@ -11,50 +11,6 @@ from algrxdd import dbfileloader as dbf
 
 debug = False
 
-def ensure_db(the_database,ddlfile):
-  conn = sqlite3.connect(the_database)
-  with open (ddlfile, "r") as myfile:
-      ddlstatements=myfile.read()
-      conn.executescript(ddlstatements)
-  conn.commit()
-  conn.close()
-
-
-def get_file_values(the_file):
-  filename = os.path.basename(the_file)
-  filesize = os.path.getsize(the_file)
-  md5B = subprocess.check_output("md5sum " + the_file,shell=True)
-  md5, *rest  = md5B.decode("utf-8").split(" ")
-  epoch = int(time.time())
-  directory = os.path.abspath(the_file)
-  return filename,filesize,md5,epoch,directory
-
-
-def load_generic(f,skipLines,sqlFuncs,the_database,the_ddl):
-  def runner():
-    if not os.path.exists(the_database):
-      ensure_db(the_database,the_ddl)
-    with open(f) as csvfile:
-      csvReader = csv.reader(csvfile)
-      conn = sqlite3.connect( the_database )
-      cur = conn.cursor()
-      cur.execute('BEGIN TRANSACTION')
-      file_values = get_file_values(f)
-      sql_for_batch = "INSERT OR IGNORE INTO batch \
-              (filename,filesize,md5,ingest_start_time,directory) \
-              VALUES (?,?,?,?,?)"
-      cur.execute(sql_for_batch,file_values)
-      batchid = cur.lastrowid
-      for _ in range(skipLines):
-        next(csvReader)
-      for row in csvReader:
-        for sql,proxyFunc in sqlFuncs:
-          for newrow in proxyFunc(row,  batchid ):
-            cur.execute(sql, newrow)
-      conn.commit()
-      conn.close()
-  return runner
-
 def load_carrier(the_file,the_ddl=None,the_database =None ):
   print("running load_carrier() with ", the_file)
   if the_database is None:
@@ -121,7 +77,7 @@ def load_carrier(the_file,the_ddl=None,the_database =None ):
   sql_function_pairs = [ (sql_for_main_claim, claim_row),
                          (sql_for_line,explode_row_for_line_items),
                          (sql_for_diag,explode_row_for_diags) ]
-  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
   realF()
 
 
@@ -146,7 +102,7 @@ def load_drug_events(the_file,the_ddl=None,the_database =None ):
     colsToKeep = [row[i] for i in range(0,8)] 
     yield colsToKeep + [batchid]
   sql_function_pairs = [ (sql_for_main_drug_events, drug_events_row) ]
-  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
   realF()
 
 def load_inpatient(the_file,the_ddl=None,the_database =None ):
@@ -218,7 +174,7 @@ def load_inpatient(the_file,the_ddl=None,the_database =None ):
                           (sql_for_hcpc_procedure,explode_row_for_hcpc_procedures),
                           (sql_for_icd9_procedure,explode_row_for_icd9_procedures),
                           (sql_for_diag,explode_row_for_diags) ]
-  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
   realF()
 
 
@@ -287,7 +243,7 @@ def load_outpatient(the_file,the_ddl=None,the_database =None ):
                           (sql_for_hcpc_procedure,explode_row_for_hcpc_procedures),
                           (sql_for_icd9_procedure,explode_row_for_icd9_procedures),
                           (sql_for_diag,explode_row_for_diags) ]
-  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
   realF()
 
 
@@ -338,7 +294,6 @@ def load_beneficiary(the_file,the_ddl=None,the_database =None ):
     yield colsToKeep + [batchid]
   sql_function_pairs = [ (sql_for_main_beneficiary, beneficiary_row) ]
   realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
-  # def load_generic(the_database,f,sqlFuncs,the_ddl,delim=',',conType="pysqlite",skipLines=0):
   realF()
 
 def load_main_files(sample):
