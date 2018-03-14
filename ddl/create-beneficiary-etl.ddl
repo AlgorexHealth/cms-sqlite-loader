@@ -1,7 +1,5 @@
-drop table if exists batch;
-drop table if exists beneficiary;
 
-CREATE TABLE beneficiary
+CREATE TABLE if not exists beneficiary
 (
   DESYNPUF_ID TEXT,
   BENE_BIRTH_DT TEXT,
@@ -38,11 +36,3 @@ CREATE TABLE beneficiary
   BatchId  INTEGER
 );
 
-CREATE TABLE batch
-(
-  filename  TEXT,
-  filesize  INTEGER,
-  md5  TEXT,
-  ingest_start_time  INTEGER,
-  directory  TEXT
-);

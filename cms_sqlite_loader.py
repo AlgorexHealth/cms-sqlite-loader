@@ -5,6 +5,10 @@ import subprocess
 import sqlite3
 import csv
 
+sys.path.append("deps/algorex-data-dictionary/")
+from algrxdd import dbutils as u
+from algrxdd import dbfileloader as dbf
+
 debug = False
 
 def ensure_db(the_database,ddlfile):
@@ -333,7 +337,8 @@ def load_beneficiary(the_file,the_ddl=None,the_database =None ):
     colsToKeep = [row[i] for i in range(0,32)] 
     yield colsToKeep + [batchid]
   sql_function_pairs = [ (sql_for_main_beneficiary, beneficiary_row) ]
-  realF = load_generic(the_file,1,sql_function_pairs,the_database,the_ddl)
+  realF = dbf.load_generic(the_database,the_file,sql_function_pairs,the_ddl,skipLines=1)
+  # def load_generic(the_database,f,sqlFuncs,the_ddl,delim=',',conType="pysqlite",skipLines=0):
   realF()
 
 def load_main_files(sample):
