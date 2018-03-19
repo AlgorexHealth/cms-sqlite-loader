@@ -34,11 +34,11 @@ def load_carrier(the_file,the_database =None ):
   dbf.quick_load(the_file,the_database, "carrier_claim",delim=",",strategy=daniel)
 
 
-def load_drug_events(the_file,the_ddl=None,the_database =None ):
+def load_drug_events(the_file,the_database =None ):
   print("running load_drug_events() with ", the_file)
   dbf.quick_load(the_file,the_database, "drug_events")
 
-def load_inpatient(the_file,the_ddl=None,the_database =None ):
+def load_inpatient(the_file,the_database =None ):
   print("running load_inpatient() with ", the_file)
   first_criteria = { "explode-criteria": ("^HCPCS_CD",) , 
                                   "table-name": "hcpc_inpatient_procedure",
@@ -54,7 +54,7 @@ def load_inpatient(the_file,the_ddl=None,the_database =None ):
 
 
 
-def load_outpatient(the_file,the_ddl=None,the_database =None ):
+def load_outpatient(the_file,the_database =None ):
   print("running load_outpatient() with ", the_file)
   first_criteria = { "explode-criteria": ("^HCPCS_CD",) , 
                                   "table-name": "hcpc_outpatient_procedure",
@@ -68,7 +68,7 @@ def load_outpatient(the_file,the_ddl=None,the_database =None ):
   tuple_p = strat.Exploding( [first_criteria,second_criteria,third_criteria] )
   dbf.quick_load(the_file,the_database, "outpatient_claim",delim=",",strategy=tuple_p)
 
-def load_beneficiary(the_file,the_ddl=None,the_database =None ):
+def load_beneficiary(the_file,the_database =None ):
   print("running load_beneficiary() with ", the_file)
   dbf.quick_load(the_file,the_database, "beneficiary")
 
@@ -78,17 +78,17 @@ def load_main_files(sample):
   filen =   "sample_{0}/DE1_0_2008_to_2010_Carrier_Claims_Sample_{0}B.csv".format(sample)
   load_carrier(filen,"carrier.db")
   filen =   "sample_{0}/DE1_0_2008_to_2010_Inpatient_Claims_Sample_{0}.csv".format(sample)
-  load_inpatient(filen,"ddl/create-inpatient-etl.ddl","inpatient.db")
+  load_inpatient(filen,"inpatient.db")
   filen =   "sample_{0}/DE1_0_2008_to_2010_Outpatient_Claims_Sample_{0}.csv".format(sample)
-  load_outpatient(filen,"ddl/create-outpatient-etl.ddl","outpatient.db")
+  load_outpatient(filen,"outpatient.db")
   filen =   "sample_{0}/DE1_0_2008_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  load_beneficiary(filen,"beneficiary.db")
   filen =   "sample_{0}/DE1_0_2009_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  load_beneficiary(filen,"beneficiary.db")
   filen =   "sample_{0}/DE1_0_2010_Beneficiary_Summary_File_Sample_{0}.csv".format(sample)
-  load_beneficiary(filen,"ddl/create-beneficiary-etl.ddl","beneficiary.db")
+  load_beneficiary(filen,"beneficiary.db")
   filen =   "sample_{0}/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_{0}.csv".format(sample)
-  load_drug_events(filen,"ddl/create-prescription-etl.ddl","prescription.db")
+  load_drug_events(filen,"prescription.db")
 
 
 if __name__ == "__main__": 
